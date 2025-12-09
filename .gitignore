@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Generated data files (can be regenerated)
+processed_data.csv
+feedback_analysis_results.csv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Model files (keep these, but ignore if regenerating)
+# sentiment_model.pkl
+# vectorizer.pkl
+# final_dataset.csv
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+

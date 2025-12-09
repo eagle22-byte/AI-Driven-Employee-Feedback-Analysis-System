@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Employee Feedback Analysis - HR Insights Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-gradient-hover: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --dark-bg: #0f172a;
+            --dark-card: #1e293b;
+            --light-bg: #f8fafc;
+            --light-card: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+            --shadow-xl: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        body {
+            background: var(--light-bg);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+
+        body.dark-mode {
+            background: var(--dark-bg);
+            color: #e2e8f0;
+        }
+
+        body.dark-mode .card {
+            background: var(--dark-card);
+            border: 1px solid #334155;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: var(--primary-gradient);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
+        }
+
+        .navbar-brand i {
+            margin-right: 0.5rem;
+            font-size: 1.5rem;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--light-card);
+            border: none;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 1.25rem 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: -0.3px;
+        }
+
+        .card-header i {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Form Elements */
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        body.dark-mode .form-control {
+            background: #1e293b;
+            border-color: #334155;
+            color: #e2e8f0;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: none;
+            letter-spacing: -0.2px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-gradient-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success-gradient);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+        }
+
+        /* Sentiment Badge */
+        .sentiment-badge {
+            font-size: 1.75rem;
+            padding: 1.25rem 2.5rem;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: var(--shadow-lg);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .sentiment-positive {
+            background: var(--success-gradient);
+            color: white;
+        }
+
+        .sentiment-negative {
+            background: var(--danger-gradient);
+            color: white;
+        }
+
+        .sentiment-neutral {
+            background: var(--warning-gradient);
+            color: white;
+        }
+
+        /* Theme Badges */
+        .theme-badge {
+            display: inline-block;
+            background: var(--primary-gradient);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+        }
+
+        .theme-badge:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-badge i {
+            margin-right: 0.25rem;
+        }
+
+        /* Emotion Bars */
+        .emotion-bar {
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.25rem;
+            margin: 0.75rem 0;
+            font-weight: 600;
+            color: white;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .emotion-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .emotion-bar:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .emotion-joy { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+        .emotion-stress { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .emotion-anger { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+        .emotion-frustration { background: linear-gradient(135deg, #f97316, #ea580c); }
+        .emotion-motivation { background: linear-gradient(135deg, #10b981, #059669); }
+        .emotion-neutral { background: linear-gradient(135deg, #6b7280, #4b5563); }
+
+        /* AI Summary Box */
+        .ai-summary-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+        }
+
+        .ai-summary-box::before {
+            content: '💡';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            opacity: 0.3;
+        }
+
+        body.dark-mode .ai-summary-box {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-left-color: #60a5fa;
+        }
+
+        /* Progress Bars */
+        .progress-custom {
+            height: 45px;
+            border-radius: 25px;
+            overflow: hidden;
+            margin: 1rem 0;
+            box-shadow: var(--shadow-sm);
+            background: #e2e8f0;
+        }
+
+        body.dark-mode .progress-custom {
+            background: #334155;
+        }
+
+        .progress-bar {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.6s ease;
+        }
+
+        /* Metrics Cards */
+        .metrics-card {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .metrics-card:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-md);
+        }
+
+        body.dark-mode .metrics-card {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        }
+
+        .metrics-value {
+            font-size: 2.75rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Department Table */
+        .department-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .department-table th {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .department-table th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        .department-table th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        .department-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        body.dark-mode .department-table td {
+            border-bottom-color: #334155;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: rgba(255,255,255,0.5);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 1.5rem 0;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Loading Spinner */
+        .spinner-border {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-width: 0.2em;
+        }
+
+        /* Results Section */
+        #resultsSection {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sentiment-badge {
+                font-size: 1.25rem;
+                padding: 1rem 1.5rem;
+            }
+            
+            .metrics-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-gradient);
+            border-radius: 5px;
+        }
+
+        body.dark-mode ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-robot"></i> AI Employee Feedback Analysis
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="me-3 text-white fw-medium">Dark Mode</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="darkModeToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4">
+        <div class="row g-4">
+            <!-- Main Analysis Panel -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-chat-dots-fill"></i> Employee Feedback Analyzer
+                    </div>
+                    <div class="card-body">
+                        <form id="feedbackForm">
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="bi bi-pencil-square me-2"></i>Enter Employee Feedback:
+                                </label>
+                                <textarea class="form-control" id="feedbackText" rows="6" 
+                                    placeholder="Example: I feel management is supportive but workload is stressful!" 
+                                    required></textarea>
+                            </div>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary">
+                                    <span id="submitText"><i class="bi bi-search me-2"></i>Analyze Feedback</span>
+                                    <div class="loading spinner-border spinner-border-sm ms-2" id="loadingSpinner">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" onclick="analyzeRandomSample()">
+                                    <i class="bi bi-shuffle me-2"></i>Random Review
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="clearAll()">
+                                    <i class="bi bi-x-circle me-2"></i>Clear
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Results Section -->
+                        <div id="resultsSection" style="display: none;" class="fade-in">
+                            <!-- Sentiment Result -->
+                            <div class="card mt-4">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0"><i class="bi bi-emoji-smile-fill me-2"></i>Sentiment Result</h5>
+                                </div>
+                                <div class="card-body text-center">
+                                    <div id="sentimentResult" class="mb-3"></div>
+                                    <div>
+                                        <strong class="text-muted">Polarity Score:</strong> 
+                                        <span id="polarityScore" class="badge bg-info ms-2 fs-6"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Confidence Scores -->
+                            <div class="card">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Model Confidence Scores</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="confidenceScores"></div>
+                                </div>
+                            </div>
+
+                            <!-- Themes -->
+                            <div class="card">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0"><i class="bi bi-tags-fill me-2"></i>Extracted Workplace Themes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="themesResult"></div>
+                                </div>
+                            </div>
+
+                            <!-- Emotions -->
+                            <div class="card">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0"><i class="bi bi-heart-fill me-2"></i>Detected Emotions</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div id="emotionsResult"></div>
+                                </div>
+                            </div>
+
+                            <!-- AI Summary -->
+                            <div class="card">
+                                <div class="card-header bg-transparent border-0">
+                                    <h5 class="mb-0"><i class="bi bi-lightbulb-fill me-2"></i>AI-Generated HR Summary</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="ai-summary-box">
+                                        <p id="aiSummary" class="mb-0 fw-medium"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Export Button -->
+                            <div class="text-center mt-4">
+                                <button class="btn btn-success btn-lg" onclick="exportReport()">
+                                    <i class="bi bi-download me-2"></i>Download Report (CSV)
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="errorAlert" class="alert alert-danger mt-3" style="display: none;" role="alert"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <!-- Model Metrics -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-graph-up-arrow me-2"></i>Model Accuracy Metrics
+                        <button class="btn btn-sm btn-outline-light float-end" type="button" data-bs-toggle="collapse" 
+                            data-bs-target="#metricsCollapse">
+                            <i class="bi bi-chevron-down"></i>
+                        </button>
+                    </div>
+                    <div class="collapse show" id="metricsCollapse">
+                        <div class="card-body">
+                            <div class="row g-3 text-center">
+                                <div class="col-6">
+                                    <div class="metrics-card">
+                                        <div class="metrics-value" id="accuracyValue">72.1%</div>
+                                        <small class="text-muted">Accuracy</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metrics-card">
+                                        <div class="metrics-value" id="f1Value">64.9%</div>
+                                        <small class="text-muted">F1 Score</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metrics-card">
+                                        <div class="metrics-value" id="precisionValue">66.0%</div>
+                                        <small class="text-muted">Precision</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="metrics-card">
+                                        <div class="metrics-value" id="recallValue">72.1%</div>
+                                        <small class="text-muted">Recall</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-outline-primary w-100 mt-3" onclick="showConfusionMatrix()">
+                                <i class="bi bi-table me-2"></i>View Confusion Matrix
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Department Sentiment -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-building me-2"></i>Department-wise Sentiment
+                    </div>
+                    <div class="card-body">
+                        <div id="departmentChart" class="chart-container">
+                            <canvas id="deptChart"></canvas>
+                        </div>
+                        <table class="table table-sm department-table" id="departmentTable">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Sentiment</th>
+                                </tr>
+                            </thead>
+                            <tbody id="departmentTableBody">
+                                <tr><td colspan="2" class="text-center text-muted py-3">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Quick Examples -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-lightning-charge-fill me-2"></i>Quick Examples
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary btn-sm" 
+                                onclick="setExample('I feel management is supportive but workload is stressful!')">
+                                <i class="bi bi-1-circle me-2"></i>Example 1: Mixed
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" 
+                                onclick="setExample('Salary is good but workload pressure is too high')">
+                                <i class="bi bi-2-circle me-2"></i>Example 2: Negative
+                            </button>
+                            <button class="btn btn-outline-primary btn-sm" 
+                                onclick="setExample('Great company culture and amazing benefits')">
+                                <i class="bi bi-3-circle me-2"></i>Example 3: Positive
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confusion Matrix Modal -->
+    <div class="modal fade" id="confusionMatrixModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background: var(--primary-gradient); color: white;">
+                    <h5 class="modal-title"><i class="bi bi-table me-2"></i>Confusion Matrix</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Predicted: Negative</th>
+                                <th>Predicted: Neutral</th>
+                                <th>Predicted: Positive</th>
+                            </tr>
+                        </thead>
+                        <tbody id="confusionMatrixBody">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentAnalysisData = null;
+        let deptChart = null;
+
+        // Dark Mode Toggle
+        document.getElementById('darkModeToggle').addEventListener('change', function() {
+            document.body.classList.toggle('dark-mode', this.checked);
+            localStorage.setItem('darkMode', this.checked);
+        });
+
+        // Load dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.getElementById('darkModeToggle').checked = true;
+            document.body.classList.add('dark-mode');
+        }
+
+        // Load model metrics
+        fetch('/model_metrics')
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('accuracyValue').textContent = (data.accuracy * 100).toFixed(1) + '%';
+                document.getElementById('f1Value').textContent = (data.f1_score * 100).toFixed(1) + '%';
+                document.getElementById('precisionValue').textContent = (data.precision * 100).toFixed(1) + '%';
+                document.getElementById('recallValue').textContent = (data.recall * 100).toFixed(1) + '%';
+            });
+
+        // Load department sentiment
+        fetch('/department_sentiment')
+            .then(r => {
+                if (r.status === 404) {
+                    document.getElementById('departmentTableBody').innerHTML = 
+                        '<tr><td colspan="2" class="text-center text-muted py-3">Department analysis requires dataset with sentiment labels</td></tr>';
+                    return;
+                }
+                return r.json();
+            })
+            .then(data => {
+                if (data && data.departments && data.departments.length > 0) {
+                    displayDepartmentSentiment(data.departments);
+                } else if (data && !data.departments) {
+                    document.getElementById('departmentTableBody').innerHTML = 
+                        '<tr><td colspan="2" class="text-center text-muted py-3">No department data available. Run prepare_dataset.py first.</td></tr>';
+                }
+            })
+            .catch(e => {
+                console.error('Department sentiment error:', e);
+                document.getElementById('departmentTableBody').innerHTML = 
+                    '<tr><td colspan="2" class="text-center text-muted py-3">Department data not available</td></tr>';
+            });
+
+        function displayDepartmentSentiment(departments) {
+            const tbody = document.getElementById('departmentTableBody');
+            tbody.innerHTML = '';
+            
+            departments.forEach(dept => {
+                const row = document.createElement('tr');
+                const sentiment = dept.positive_pct >= 50 ? 'Positive' : 
+                                 dept.negative_pct >= 40 ? 'Negative' : 'Neutral';
+                const badgeClass = sentiment === 'Positive' ? 'success' : 
+                                  sentiment === 'Negative' ? 'danger' : 'warning';
+                
+                row.innerHTML = `
+                    <td><strong>${dept.department}</strong></td>
+                    <td>
+                        <span class="badge bg-${badgeClass}">${dept.positive_pct}% Positive</span>
+                        <small class="text-muted ms-2">(${dept.total} reviews)</small>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Create chart
+            const ctx = document.getElementById('deptChart').getContext('2d');
+            if (deptChart) deptChart.destroy();
+            
+            deptChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: departments.map(d => d.department),
+                    datasets: [{
+                        label: 'Positive %',
+                        data: departments.map(d => d.positive_pct),
+                        backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                        borderColor: 'rgba(16, 185, 129, 1)',
+                        borderWidth: 2,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Form submission
+        document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const feedbackText = document.getElementById('feedbackText').value.trim();
+            if (!feedbackText) {
+                showError('Please enter some feedback text.');
+                return;
+            }
+
+            showLoading(true);
+            hideError();
+            document.getElementById('resultsSection').style.display = 'none';
+
+            try {
+                const response = await fetch('/analyze_feedback', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ feedback: feedbackText })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'An error occurred');
+
+                currentAnalysisData = data;
+                displayResults(data);
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function displayResults(data) {
+            // Sentiment
+            const sentimentResult = document.getElementById('sentimentResult');
+            const sentiment = data.sentiment.toLowerCase();
+            let badgeClass = 'sentiment-neutral';
+            let sentimentText = sentiment.charAt(0).toUpperCase() + sentiment.slice(1);
+            let emoji = '🟡';
+            
+            if (sentiment === 'positive') {
+                badgeClass = 'sentiment-positive';
+                emoji = '🟢';
+            } else if (sentiment === 'negative') {
+                badgeClass = 'sentiment-negative';
+                emoji = '🔴';
+            }
+            
+            sentimentResult.innerHTML = `<span class="sentiment-badge ${badgeClass}">${emoji} ${sentimentText}</span>`;
+            document.getElementById('polarityScore').textContent = data.polarity_score.toFixed(3);
+
+            // Confidence
+            const conf = data.confidence || {};
+            const posPct = (conf.positive || 0) * 100;
+            const neuPct = (conf.neutral || 0) * 100;
+            const negPct = (conf.negative || 0) * 100;
+            
+            const confHtml = `
+                <div class="progress progress-custom" style="height: 45px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: ${posPct}%" aria-valuenow="${posPct}" aria-valuemin="0" aria-valuemax="100">
+                        ${posPct.toFixed(1)}% Positive
+                    </div>
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: ${neuPct}%" aria-valuenow="${neuPct}" aria-valuemin="0" aria-valuemax="100">
+                        ${neuPct.toFixed(1)}% Neutral
+                    </div>
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: ${negPct}%" aria-valuenow="${negPct}" aria-valuemin="0" aria-valuemax="100">
+                        ${negPct.toFixed(1)}% Negative
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <strong class="text-muted">Compound Polarity Score:</strong> 
+                    <span class="badge bg-info fs-6 ms-2">${(data.polarity_score || 0).toFixed(3)}</span>
+                </div>
+            `;
+            document.getElementById('confidenceScores').innerHTML = confHtml;
+
+            // Themes
+            const themesResult = document.getElementById('themesResult');
+            if (data.themes && data.themes.length > 0) {
+                themesResult.innerHTML = data.themes.map(theme => 
+                    `<span class="theme-badge"><i class="bi bi-tag-fill"></i> ${theme}</span>`
+                ).join('');
+            } else {
+                themesResult.innerHTML = '<span class="text-muted">No specific themes detected</span>';
+            }
+
+            // Emotions
+            const emotionsResult = document.getElementById('emotionsResult');
+            if (data.emotions && Object.keys(data.emotions).length > 0) {
+                const emotionHtml = Object.entries(data.emotions)
+                    .map(([emotion, percent]) => {
+                        const emotionClass = `emotion-${emotion}`;
+                        const emotionLabel = emotion.charAt(0).toUpperCase() + emotion.slice(1);
+                        return `
+                            <div class="emotion-bar ${emotionClass}">
+                                <span><i class="bi bi-${emotion === 'joy' ? 'emoji-smile' : emotion === 'stress' ? 'exclamation-triangle' : emotion === 'anger' ? 'emoji-angry' : emotion === 'frustration' ? 'emoji-frown' : emotion === 'motivation' ? 'lightning-charge' : 'dash-circle'} me-2"></i>${emotionLabel}</span>
+                                <span><strong>${percent}%</strong></span>
+                            </div>
+                        `;
+                    }).join('');
+                emotionsResult.innerHTML = emotionHtml;
+            } else {
+                emotionsResult.innerHTML = '<span class="text-muted">No emotions detected</span>';
+            }
+
+            // AI Summary
+            document.getElementById('aiSummary').textContent = data.ai_summary || 'No summary available.';
+
+            document.getElementById('resultsSection').style.display = 'block';
+        }
+
+        function analyzeRandomSample() {
+            showLoading(true);
+            fetch('/random_sample')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    document.getElementById('feedbackText').value = data.feedback;
+                    document.getElementById('feedbackForm').dispatchEvent(new Event('submit'));
+                })
+                .catch(e => showError(e.message))
+                .finally(() => showLoading(false));
+        }
+
+        function exportReport() {
+            if (!currentAnalysisData) {
+                alert('Please analyze feedback first');
+                return;
+            }
+
+            const exportData = {
+                feedback: document.getElementById('feedbackText').value,
+                cleaned_text: currentAnalysisData.cleaned_text,
+                sentiment: currentAnalysisData.sentiment,
+                confidence: currentAnalysisData.confidence,
+                polarity_score: currentAnalysisData.polarity_score,
+                themes: currentAnalysisData.themes,
+                emotions: currentAnalysisData.emotions,
+                ai_summary: currentAnalysisData.ai_summary
+            };
+
+            fetch('/export_report', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(exportData)
+            })
+            .then(r => r.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `feedback_analysis_${new Date().getTime()}.csv`;
+                a.click();
+            })
+            .catch(e => alert('Export failed: ' + e.message));
+        }
+
+        function showConfusionMatrix() {
+            fetch('/model_metrics')
+                .then(r => r.json())
+                .then(data => {
+                    const cm = data.confusion_matrix;
+                    const tbody = document.getElementById('confusionMatrixBody');
+                    tbody.innerHTML = '';
+                    
+                    ['negative', 'neutral', 'positive'].forEach(actual => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <th>Actual: ${actual.charAt(0).toUpperCase() + actual.slice(1)}</th>
+                            <td>${cm[actual].negative}</td>
+                            <td>${cm[actual].neutral}</td>
+                            <td>${cm[actual].positive}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                    
+                    new bootstrap.Modal(document.getElementById('confusionMatrixModal')).show();
+                });
+        }
+
+        function setExample(text) {
+            document.getElementById('feedbackText').value = text;
+        }
+
+        function clearAll() {
+            document.getElementById('feedbackText').value = '';
+            document.getElementById('resultsSection').style.display = 'none';
+            currentAnalysisData = null;
+        }
+
+        function showLoading(show) {
+            document.getElementById('loadingSpinner').style.display = show ? 'inline-block' : 'none';
+            document.getElementById('submitText').innerHTML = show ? 
+                '<i class="bi bi-hourglass-split me-2"></i>Analyzing...' : 
+                '<i class="bi bi-search me-2"></i>Analyze Feedback';
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorAlert').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

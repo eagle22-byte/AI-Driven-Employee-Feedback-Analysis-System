@@ -1,0 +1,13 @@
+Top HR-Related Keywords Extracted from Employee Feedback
+==================================================
+
+1. work (score: 0.0670)
+2. company (score: 0.0457)
+3. benefit (score: 0.0313)
+4. time (score: 0.0270)
+5. environment (score: 0.0246)
+6. management (score: 0.0240)
+7. manager (score: 0.0240)
+8. team (score: 0.0231)
+9. working (score: 0.0227)
+10. culture (score: 0.0227)
